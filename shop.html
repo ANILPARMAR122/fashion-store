@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Collection | MenHub Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="auth.js"></script>
+    <style>
+        :root { --bg-dark: #0f0f0f; --bg-card: #1a1a1a; --text-main: #f5f5f5; --text-muted: #a0a0a0; --accent: #dc2626; --border: rgba(255, 255, 255, 0.1); --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Montserrat', sans-serif; }
+        html { scroll-behavior: smooth; }
+        body { background-color: var(--bg-dark); color: var(--text-main); overflow-x: hidden; }
+
+        .btn { display: inline-block; padding: 12px 30px; background: var(--text-main); color: var(--bg-dark); text-transform: uppercase; font-weight: 800; border: none; cursor: pointer; transition: var(--transition); border-radius: 4px; }
+        .btn:hover { background: var(--accent); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: var(--text-main); color: var(--bg-dark); border-color: var(--text-main); }
+        .container { max-width: 1400px; margin: 0 auto; padding: 50px 20px 100px; }
+
+        /* Unified Navbar */
+        nav { position: fixed; width: 100%; top: 0; z-index: 1000; padding: 20px 5%; display: flex; justify-content: space-between; align-items: center; background: var(--bg-dark); border-bottom: 1px solid var(--border); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); }
+        .logo { font-size: 26px; font-weight: 800; color: white; text-decoration: none; text-transform: uppercase; letter-spacing: 2px; }
+        .logo span { color: var(--accent); }
+        .nav-links { display: flex; list-style: none; gap: 25px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 13px; letter-spacing: 1px; transition: var(--transition); }
+        .nav-links a:hover, .nav-links a.active { color: white; }
+
+        .header-controls { display: flex; align-items: center; gap: 20px; }
+        .header-search { display: flex; align-items: center; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 30px; padding: 8px 15px; transition: var(--transition); }
+        .header-search:focus-within { border-color: var(--text-main); background: rgba(255, 255, 255, 0.1); }
+        .header-search i { color: var(--text-muted); font-size: 14px; }
+        .header-search input { background: transparent; border: none; color: white; padding-left: 10px; outline: none; width: 180px; font-size: 13px; font-family: inherit; }
+        .header-search input::placeholder { color: var(--text-muted); }
+
+        .icon-wrapper { position: relative; cursor: pointer; font-size: 18px; color: var(--text-main); display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.05); transition: var(--transition); }
+        .icon-wrapper:hover { background: var(--accent); color: white; }
+        .badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: white; font-size: 10px; font-weight: 800; width: 18px; height: 18px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid var(--bg-dark); }
+
+        .profile-dropdown { position: relative; }
+        .dropdown-menu { position: absolute; top: 55px; right: 0; width: 220px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: var(--transition); display: flex; flex-direction: column; z-index: 1001; }
+        .profile-dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+        .dropdown-header { padding: 15px; background: rgba(0,0,0,0.2); border-radius: 8px 8px 0 0; }
+        .user-name { font-weight: 800; font-size: 14px; color: var(--text-main); margin-bottom: 5px;}
+        .user-role { font-size: 11px; color: var(--accent); text-transform: uppercase; font-weight: 600; }
+        .dropdown-menu hr { border: none; border-top: 1px solid var(--border); margin: 0; }
+        .dropdown-menu a { padding: 12px 15px; color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .dropdown-menu a:hover { background: rgba(255, 255, 255, 0.05); color: white; padding-left: 20px; }
+
+        .cart-sidebar { position: fixed; top: 0; right: -450px; width: 400px; max-width: 100%; height: 100vh; background: var(--bg-card); z-index: 2000; padding: 30px; transition: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); box-shadow: -10px 0 30px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; border-left: 1px solid var(--border); }
+        .cart-sidebar.active { right: 0; }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 20px; }
+        .cart-items { flex: 1; overflow-y: auto; padding-right: 10px; }
+        .cart-item { display: flex; gap: 15px; margin-bottom: 15px; background: rgba(0, 0, 0, 0.2); padding: 10px; border-radius: 8px; position: relative; border: 1px solid transparent; }
+        .cart-item img { width: 70px; height: 80px; object-fit: cover; border-radius: 4px; }
+        .cart-item-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .cart-item-info h4 { font-size: 13px; margin-bottom: 5px; color: white; }
+        .cart-item-info p { color: var(--accent); font-weight: 800; font-size: 14px; }
+        .qty-controls { display: flex; gap: 10px; align-items: center; margin-top: 10px; }
+        .qty-btn { background: var(--bg-dark); color: white; border: 1px solid var(--border); width: 25px; height: 25px; cursor: pointer; border-radius: 4px; }
+        .remove-btn { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); cursor: pointer; }
+
+        .page-header { padding: 120px 20px 40px; text-align: center; border-bottom: 1px solid var(--border); background: var(--bg-card); }
+        .page-header h1 { font-size: 40px; font-weight: 800; text-transform: uppercase; letter-spacing: 4px; color: white; }
+        .page-header p { color: var(--accent); font-weight: 600; letter-spacing: 1px; margin-top: 10px; text-transform: uppercase; font-size: 13px; }
+        
+        /* SHOP LAYOUT (New) */
+        .shop-layout { display: flex; gap: 40px; align-items: flex-start; margin-top: 40px; }
+        
+        /* SIDEBAR FILTERS (New) */
+        .shop-sidebar { width: 280px; flex-shrink: 0; background: var(--bg-card); padding: 25px; border-radius: 8px; border: 1px solid var(--border); position: sticky; top: 100px; }
+        .filter-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .filter-header h3 { font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+        .clear-filters { font-size: 11px; color: var(--text-muted); cursor: pointer; text-transform: uppercase; font-weight: 600; text-decoration: underline; background: none; border: none; transition: 0.3s; }
+        .clear-filters:hover { color: var(--accent); }
+        
+        .filter-group { margin-bottom: 25px; }
+        .filter-group h4 { font-size: 13px; color: white; margin-bottom: 15px; text-transform: uppercase; font-weight: 800; }
+        
+        /* Checkbox & Radios */
+        .checkbox-label { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: 0.3s; }
+        .checkbox-label:hover { color: white; }
+        .checkbox-label input { appearance: none; width: 18px; height: 18px; border: 1px solid var(--text-muted); border-radius: 3px; background: transparent; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        .checkbox-label input:checked { background: var(--accent); border-color: var(--accent); }
+        .checkbox-label input:checked::after { content: '\f00c'; font-family: "Font Awesome 6 Free"; font-weight: 900; font-size: 11px; color: white; }
+        
+        .radio-label input { border-radius: 50%; }
+        .radio-label input:checked::after { content: ''; width: 8px; height: 8px; background: white; border-radius: 50%; }
+
+        /* Range Slider */
+        .price-range-wrapper { display: flex; flex-direction: column; gap: 10px; }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 16px; width: 16px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -6px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
+        .price-labels { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-muted); font-weight: 600; }
+
+        /* PRODUCT GRID AREA */
+        .product-area { flex: 1; }
+        .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; background: var(--bg-card); padding: 15px 25px; border-radius: 8px; border: 1px solid var(--border); }
+        .toolbar-info { font-size: 13px; color: var(--text-muted); font-weight: 600; }
+        .sort-select { background: var(--bg-dark); color: white; border: 1px solid var(--border); padding: 8px 15px; border-radius: 4px; font-family: inherit; font-size: 13px; font-weight: 600; outline: none; cursor: pointer; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 30px; }
+        .product-card { background: var(--bg-card); border: 1px solid var(--border); transition: var(--transition); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column;}
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6); border-color: rgba(255, 255, 255, 0.2); }
+        .p-image { position: relative; height: 320px; overflow: hidden; background: #222; }
+        .p-image img { width: 100%; height: 100%; object-fit: cover; transition: 0.7s cubic-bezier(0.25, 0.8, 0.25, 1); }
+        .product-card:hover .p-image img { transform: scale(1.08); }
+        .p-badge { position: absolute; top: 15px; left: 15px; background: var(--text-main); color: var(--bg-dark); padding: 5px 12px; font-size: 10px; font-weight: 800; border-radius: 20px; }
+        .p-info { padding: 25px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .p-info h3 { font-size: 14px; margin-bottom: 10px; color: white; text-transform: uppercase; }
+        .p-price { font-size: 18px; font-weight: 800; color: var(--accent); margin-bottom: 20px; }
+        .p-rating { color: #f59e0b; font-size: 12px; margin-bottom: 15px; letter-spacing: 2px; }
+        .p-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: auto; }
+        .p-actions button { width: 100%; padding: 12px 0; font-size: 11px; border-radius: 4px; }
+
+        .no-results { grid-column: 1/-1; text-align: center; padding: 60px 20px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; }
+        .no-results i { font-size: 40px; color: var(--text-muted); margin-bottom: 15px; }
+
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: white; color: var(--bg-dark); padding: 15px 30px; border-radius: 50px; font-weight: 800; font-size: 13px; text-transform: uppercase; opacity: 0; transition: 0.4s; z-index: 3000; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        footer { padding: 80px 5% 40px; background: var(--bg-card); border-top: 1px solid var(--border); margin-top: 50px; }
+        .footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 50px; margin-bottom: 50px; }
+        .f-col h4 { font-size: 16px; text-transform: uppercase; font-weight: 800; margin-bottom: 25px; color: white; }
+        .f-col ul { list-style: none; }
+        .f-col ul li { margin-bottom: 15px; }
+        .f-col ul li a { color: var(--text-muted); text-decoration: none; transition: 0.3s; font-size: 13px; }
+        .f-col ul li a:hover { color: white; padding-left: 5px; }
+
+        @media (max-width: 900px) { 
+            .nav-links, .header-search { display: none; } 
+            .shop-layout { flex-direction: column; }
+            .shop-sidebar { width: 100%; position: relative; top: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toast" class="toast">Action Successful</div>
+
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="cart-header">
+            <h3 style="font-weight: 800; font-size: 16px; letter-spacing: 1px;">YOUR CART</h3>
+            <i class="fa-solid fa-xmark" style="cursor: pointer; font-size: 20px; color: var(--text-muted);" onclick="cartCore.toggle()"></i>
+        </div>
+        <div class="cart-items" id="cartItems"></div>
+        <div class="cart-total" style="border-top: 1px solid var(--border); padding-top: 20px; margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-weight: 800; font-size: 18px;">
+                <span>TOTAL:</span>
+                <span id="cartTotal" style="color: var(--accent);">₹0</span>
+            </div>
+            <button class="btn" style="width: 100%; border-radius: 4px;" onclick="cartCore.checkout()">SECURE CHECKOUT</button>
+        </div>
+    </div>
+
+    <nav id="navbar">
+        <a href="index.html" class="logo">Men<span>Hub</span></a>
+        <ul class="nav-links">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="index.html#arrivals">New Arrivals</a></li>
+            <li><a href="categories.html">Categories</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="header-controls">
+            <div class="header-search">
+                <i class="fa-solid fa-search"></i>
+                <input type="text" id="navbarSearch" placeholder="Search premium items...">
+            </div>
+            <div class="icon-wrapper" onclick="cartCore.toggle()">
+                <i class="fa-solid fa-shopping-cart"></i>
+                <span class="badge" id="cartBadge">0</span>
+            </div>
+            <div class="profile-dropdown">
+                <div class="icon-wrapper"><i class="fa-solid fa-user"></i></div>
+                <div class="dropdown-menu">
+                    <div class="dropdown-header">
+                        <p class="user-name">Guest User</p>
+                        <p class="user-role">Premium Member</p>
+                    </div>
+                    <hr>
+                    <a href="profile.html"><i class="fa-solid fa-id-badge"></i> My Profile</a>
+                    <a href="settings.html"><i class="fa-solid fa-gear"></i> Settings</a>
+                    <hr>
+                    <a href="#" onclick="auth.logout()"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <header class="page-header">
+        <h1>Shop Collection</h1>
+        <p>Premium Men's Fashion</p>
+    </header>
+
+    <section class="container">
+        <div class="shop-layout">
+            
+            <aside class="shop-sidebar">
+                <div class="filter-header">
+                    <h3>Filters</h3>
+                    <button class="clear-filters" onclick="filterSystem.clearAll()">Clear All</button>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Categories</h4>
+                    <label class="checkbox-label"><input type="checkbox" value="Jackets" class="filter-cat"> Jackets</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Shirts" class="filter-cat"> Shirts & Tees</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Bottoms" class="filter-cat"> Bottoms</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Footwear" class="filter-cat"> Footwear</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Activewear" class="filter-cat"> Activewear</label>
+                    <label class="checkbox-label"><input type="checkbox" value="Accessories" class="filter-cat"> Accessories</label>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Max Price: <span id="priceDisplay" style="color: var(--accent);">₹6500</span></h4>
+                    <div class="price-range-wrapper">
+                        <input type="range" id="priceRange" min="300" max="6500" value="6500" step="100">
+                        <div class="price-labels">
+                            <span>₹300</span>
+                            <span>₹6500</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="filter-group">
+                    <h4>Minimum Rating</h4>
+                    <label class="checkbox-label radio-label"><input type="radio" name="ratingFilter" value="5"> ★★★★★ (5 Only)</label>
+                    <label class="checkbox-label radio-label"><input type="radio" name="ratingFilter" value="4"> ★★★★☆ & Up</label>
+                    <label class="checkbox-label radio-label"><input type="radio" name="ratingFilter" value="3"> ★★★☆☆ & Up</label>
+                    <label class="checkbox-label radio-label"><input type="radio" name="ratingFilter" value="0" checked> Any Rating</label>
+                </div>
+            </aside>
+
+            <div class="product-area">
+                <div class="toolbar">
+                    <div class="toolbar-info">Showing <span id="resultCount" style="color: white; font-weight: 800;">0</span> Products</div>
+                    <div class="toolbar-sort">
+                        <select id="sortSelect" class="sort-select">
+                            <option value="default">Sort By: Recommended</option>
+                            <option value="price-asc">Price: Low to High</option>
+                            <option value="price-desc">Price: High to Low</option>
+                            <option value="rating">Top Rated</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="product-grid" id="productGrid">
+                    </div>
+            </div>
+
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-grid" style="padding: 0;">
+            <div class="f-col">
+                <a href="#" class="logo" style="margin-bottom: 20px; display: block;">Men<span>Hub</span></a>
+                <p style="color: var(--text-muted); line-height: 1.6; font-size: 13px;">Redefining men's fashion with bold designs, premium quality, and uncompromising style. Build your legacy.</p>
+            </div>
+            <div class="f-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="categories.html">Categories</a></li>
+                    <li><a href="shop.html">Shop</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const products = [
+            // --- JACKETS ---
+            { id: 101, name: "Matte Black Bomber", price: 2999, category: "Jackets", img: "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Bestseller" },
+            { id: 102, name: "Desert Suede Jacket", price: 4500, category: "Jackets", img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "New" },
+            { id: 103, name: "Leather Biker Jacket", price: 5999, category: "Jackets", img: "https://m.media-amazon.com/images/I/81F4jIb9EsL._AC_UY1100_.jpg", rating: 5, tag: "Premium" },
+            { id: 104, name: "Urban Windbreaker", price: 2200, category: "Jackets", img: "https://assets.ajio.com/medias/sys_master/root/20231229/gbaF/658ed80cddf7791519f60abf/-473Wx593H-469577324-navyblue-MODEL.jpg", rating: 4, tag: "" },
+            { id: 105, name: "Vintage Denim Jacket", price: 2799, category: "Jackets", img: "https://assets.sheinindia.in/medias/shein_sys_master/root/20250626/Uazj/685cecc20f920c69cc589c1d/-473Wx593H-443318409-ltblue-MODEL.jpg", rating: 5, tag: "Trending" },
+            { id: 106, name: "Quilted Puffer Jacket", price: 3499, category: "Jackets", img: "https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "Winter" },
+            { id: 107, name: "Classic Trench Coat", price: 6500, category: "Jackets", img: "https://cdn.shopify.com/s/files/1/0611/3476/6320/files/download_11_14353a89-15be-4b97-90f4-04b7d68ff905_480x480.jpg?v=1722679328", rating: 5, tag: "Premium" },
+            { id: 108, name: "Wool Varsity Jacket", price: 4200, category: "Jackets", img: "https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Hot" },
+
+            // --- SHIRTS & TEES ---
+            { id: 201, name: "Oxford Fit White", price: 1499, category: "Shirts", img: "https://m.media-amazon.com/images/I/61tSK2tqBNL._AC_UY1100_.jpg", rating: 5, tag: "Classic" },
+            { id: 202, name: "Dark Denim Shirt", price: 1899, category: "Shirts", img: "https://powerlook.in/cdn/shop/files/13527211_1_85c66d73-cfc9-463d-9cda-bbde30178667.jpg?v=1768387316", rating: 4, tag: "" },
+            { id: 203, name: "Flannel Checkered", price: 1299, category: "Shirts", img: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "Winter" },
+            { id: 204, name: "Black Graphic Tee", price: 899, category: "Shirts", img: "https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Trending" },
+            { id: 205, name: "Navy Premium Polo", price: 1199, category: "Shirts", img: "https://images.unsplash.com/photo-1617137968427-85924c800a22?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Bestseller" },
+            { id: 206, name: "Breathable Linen", price: 1699, category: "Shirts", img: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "Summer" },
+            { id: 207, name: "Striped Dress Shirt", price: 1999, category: "Shirts", img: "https://images.unsplash.com/photo-1603252109303-2751441dd157?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Formal" }, 
+            { id: 208, name: "Waffle Knit Henley", price: 1099, category: "Shirts", img: "https://images.unsplash.com/photo-1503341455253-b2e723bb3dbb?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "" },
+
+            // --- BOTTOMS ---
+            { id: 301, name: "Raw Denim Jeans", price: 3200, category: "Bottoms", img: "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Premium" },
+            { id: 302, name: "Urban Cargo Pants", price: 2800, category: "Bottoms", img: "https://assets.myntassets.com/w_412,q_50,,dpr_3,fl_progressive,f_webp/assets/images/2024/SEPTEMBER/30/0eBrMj3k_7cf7b4d6060046e29cf433df222cc6f5.jpg", rating: 4, tag: "Trending" },
+            { id: 303, name: "Slim Beige Chinos", price: 1899, category: "Bottoms", img: "https://media-uk.landmarkshops.in/cdn-cgi/image/h=730,w=540,q=85,fit=cover/max-new/1000011402146-Beige-BEIGE-1000011402146-31072022_01-2100.jpg", rating: 5, tag: "Classic" },
+            { id: 304, name: "Tailored Trousers", price: 2499, category: "Bottoms", img: "https://assets.myntassets.com/dpr_1.5,q_30,w_400,c_limit,fl_progressive/assets/images/2026/JANUARY/4/uNh6MiNT_61c9c0a059234182bf3e7e0f9b81bc0c.jpg", rating: 5, tag: "Formal" },
+            { id: 305, name: "Distressed Black Jeans", price: 2199, category: "Bottoms", img: "https://image.made-in-china.com/2f0j00pqToBwScQjbm/Men-Fashion-All-Match-Distressed-Black-Jeans-High-Quality-Stretch-Skinny-Denim-Jeans-for-Men.webp", rating: 4, tag: "Hot" },
+            { id: 306, name: "Everyday Joggers", price: 1499, category: "Bottoms", img: "https://encrypted-tbn1.gstatic.com/shopping?q=tbn:ANd9GcTDMNJXY2Nt-_pFahB4iB-zuU_DMbNL4Fk60A5oAsuwQVUL2kd2EfWIYhL4-wc-VZ8RkO6BIE1Fr01s6RdPOEq-MouuCEX9KrUt0fyEYHiUMSfVAYlAFlkrmQ", rating: 4, tag: "" },
+            { id: 307, name: "Khaki Summer Shorts", price: 999, category: "Bottoms", img: "https://m.media-amazon.com/images/I/71ns0+0hPeL._AC_UY1100_.jpg", rating: 4, tag: "Summer" },
+            { id: 308, name: "Corduroy Straight Pants", price: 2600, category: "Bottoms", img: "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQf-1ixUns43wwtq7A4EKw_xEgqWMIsGbUz1EU5rREQJBxR5fDXutpVRft0F1XVJWtf2a0r5V5pRuZRqjghrrflAlf5H-YEn1LEpC4rgjRq", rating: 4, tag: "Winter" },
+
+            // --- FOOTWEAR ---
+            { id: 401, name: "Midnight Sneakers", price: 3999, category: "Footwear", img: "https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Hot" },
+            { id: 402, name: "Chelsea Leather Boots", price: 5499, category: "Footwear", img: "https://images.unsplash.com/photo-1638247025967-b4e38f787b76?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Premium" },
+            { id: 403, name: "White Canvas Lows", price: 1599, category: "Footwear", img: "https://images.unsplash.com/photo-1525966222134-fcfa99b8ae77?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "Classic" },
+            { id: 404, name: "Retro High Tops", price: 4200, category: "Footwear", img: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Limited" },
+            { id: 405, name: "Suede Penny Loafers", price: 3500, category: "Footwear", img: "https://images.unsplash.com/photo-1614252369475-531eba835eb1?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "" },
+            { id: 406, name: "Classic Desert Boots", price: 4100, category: "Footwear", img: "https://images.unsplash.com/photo-1520639888713-7851133b1ed0?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "" },
+            { id: 407, name: "Formal Leather Oxfords", price: 5999, category: "Footwear", img: "https://m.media-amazon.com/images/I/41T1rFz2iRL.jpg", rating: 5, tag: "Formal" },
+            { id: 408, name: "Performance Runners", price: 4800, category: "Footwear", img: "https://images.unsplash.com/photo-1608231387042-66d1773070a5?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Sport" },
+
+            // --- ACTIVEWEAR ---
+            { id: 501, name: "Tech Performance Hoodie", price: 2500, category: "Activewear", img: "https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Bestseller" },
+            { id: 502, name: "Tapered Gym Joggers", price: 1800, category: "Activewear", img: "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRNOiqgHs54FJ7KjdEiK5ojrcn6KDlRkTCFI4CH0eCBSVFZXpcHoBg6VhnpKt2o1mdjlA_MBV0WYCZW1lOOvQid7T1W_FWcOvwWTgvosqD2d89m3LO8roMi&usqp=CAc", rating: 4, tag: "" },
+            { id: 503, name: "Pro Compression Tights", price: 1200, category: "Activewear", img: "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTcYw1Ei0EvNndDuY6w09022y2sl2fPUAmCpQfVLxXKXbwMfgsJNjtXww8bX9PbfmoSTu9I2jWGh5-e6ajaiPxhGUq4be7QZ9ggPBeb15wgo1FQV4EFdElUyM0", rating: 4, tag: "" },
+            { id: 504, name: "Dry-Fit Sports Tee", price: 899, category: "Activewear", img: "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcTnEamPnOaGtNVTI8crAQz3u9sES-z_yDPcFSOE5vfFduZeP25HVXY0LOkv9R5PeXVrMWP5tCF-g0eWT7pvA_nw1lKwUJEOatlpfU9VcmNgEQwfsTcdHy1S", rating: 5, tag: "Hot" },
+            { id: 505, name: "Lightweight Track Jacket", price: 2100, category: "Activewear", img: "https://encrypted-tbn3.gstatic.com/shopping?q=tbn:ANd9GcRoD2libIQohKm0cS2RWfhEhilHfBMMB0shllNcb1mILe8v2VXth2GbRfOHCBfINwEdOU0UXpVVbXb7e5Y4-hPS8Z_OpgLsFgsJxeN-UYuRORvILI7XCe2T", rating: 4, tag: "" },
+            { id: 506, name: "Mesh Training Shorts", price: 799, category: "Activewear", img: "https://m.media-amazon.com/images/I/71+jdxgPBDL.jpg", rating: 4, tag: "" },
+            { id: 507, name: "Muscle Tank", price: 699, category: "Activewear", img: "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcQPR2NwVIF2wxoJB5xYyB_wUU7KPfpr9L0ySiOyrQPSM8DClGvVk1d_Ovp_Q8PMa7sk4plYwR-077N2v_fOp5t0Qn5RajgotoxsNSxQkIgS4rMMZYpY94Jr", rating: 3, tag: "" },
+            { id: 508, name: "Quarter-Zip Pullover", price: 1999, category: "Activewear", img: "https://encrypted-tbn2.gstatic.com/shopping?q=tbn:ANd9GcQs7w4yECJGTJq8YZ6x-lVEF_EwScBsVVG2osXE66wolU2hZzPm_0GW2vbp9q0gJw3vQvkOP_rmgPAuhatRtWA8OQJfTvRzPdzbhXBnAeYdtIpSPj3gyHEOnzQ", rating: 5, tag: "Winter" },
+
+            // --- ACCESSORIES ---
+            { id: 601, name: "Textured Belt", price: 999, category: "Accessories", img: "https://blackberrys.com/cdn/shop/files/Textured_Leather_Belt_In_Brown_Tallian-BTPM0509C1ZA23FA-image3.jpg?v=1703567545&width=2000", rating: 5, tag: "Trend" },
+            { id: 602, name: "UV Aviators", price: 1299, category: "Accessories", img: "https://www.jiomart.com/images/product/500x630/469409109_grey/wt22031-uv-protected-aviators-model-469409109_grey-0-202304112118.jpg", rating: 4, tag: "Hot" },
+            { id: 603, name: "Analog Watch", price: 2499, category: "Accessories", img: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Premium" },
+            { id: 604, name: "Bi-Fold Wallet", price: 799, category: "Accessories", img: "https://images.unsplash.com/photo-1627123424574-724758594e93?auto=format&fit=crop&w=500&q=80", rating: 4, tag: "" },
+            { id: 605, name: "Tie & Pocket Square", price: 1499, category: "Accessories", img: "https://static-assets-prod.fnp.com/images/pr/l/v20240102155744/kavove-minimalist-black-tie-n-pocket-square-set_1.jpg", rating: 4, tag: "Formal" },
+            { id: 606, name: "Gym Duffle", price: 1899, category: "Accessories", img: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&w=500&q=80", rating: 5, tag: "Sport" },
+            { id: 607, name: "Cotton Cap", price: 499, category: "Accessories", img: "https://i5.walmartimages.com/asr/afc10602-7278-46d7-929f-cb94542ac439_1.070955eb92cf2a53e195f118df32f952.jpeg", rating: 4, tag: "" },
+            { id: 608, name: "Ankle Socks", price: 399, category: "Accessories", img: "https://tse4.mm.bing.net/th/id/OIP.j1TUrvsZXWZFNZj45Nb2_wHaKX?rs=1&pid=ImgDetMain&o=7&rm=3", rating: 5, tag: "Essential" }
+        ];
+
+        const toastSystem = {
+            show(msg) {
+                const t = document.getElementById("toast");
+                if (!t) return;
+                t.innerText = msg;
+                t.classList.add("show");
+                setTimeout(() => t.classList.remove("show"), 2500);
+            }
+        };
+
+        const cartCore = {
+            data: JSON.parse(localStorage.getItem("mh_cart")) || [],
+            save() { localStorage.setItem("mh_cart", JSON.stringify(this.data)); this.render(); },
+            add(id) {
+                let p = products.find(x => x.id === id);
+                let item = this.data.find(x => x.id === id);
+                if (item) item.qty++;
+                else this.data.push({ ...p, qty: 1 });
+                this.save();
+                toastSystem.show("🛒 Added to Cart");
+            },
+            remove(id) { this.data = this.data.filter(x => x.id !== id); this.save(); },
+            updateQty(id, delta) {
+                let item = this.data.find(i => i.id === id);
+                if (item) {
+                    item.qty += delta;
+                    if (item.qty <= 0) this.remove(id);
+                    else this.save();
+                }
+            },
+            checkout() {
+                if (this.data.length === 0) return alert("Cart is empty");
+                let orders = JSON.parse(localStorage.getItem("mh_orders")) || [];
+                orders.push({ id: Date.now(), items: this.data, date: new Date().toLocaleString() });
+                localStorage.setItem("mh_orders", JSON.stringify(orders));
+                this.data = []; this.save();
+                toastSystem.show("✅ Order Placed Successfully");
+                this.toggle();
+            },
+            toggle() { 
+                const sidebar = document.getElementById("cartSidebar");
+                if (sidebar) sidebar.classList.toggle("active");
+            },
+            render() {
+                const c = document.getElementById("cartItems");
+                const badge = document.getElementById("cartBadge");
+                const totalEl = document.getElementById("cartTotal");
+                let total = 0;
+                if (!c) return;
+                c.innerHTML = "";
+                this.data.forEach(i => {
+                    total += i.price * i.qty;
+                    c.innerHTML += `
+                    <div class="cart-item">
+                        <img src="${i.img}" alt="${i.name}">
+                        <div class="cart-item-info">
+                            <h4>${i.name}</h4>
+                            <p>₹${i.price}</p>
+                            <div class="qty-controls">
+                                <button class="qty-btn" onclick="cartCore.updateQty(${i.id},-1)">-</button>
+                                <span>${i.qty}</span>
+                                <button class="qty-btn" onclick="cartCore.updateQty(${i.id},1)">+</button>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-trash remove-btn" onclick="cartCore.remove(${i.id})"></i>
+                    </div>`;
+                });
+                if(badge) badge.innerText = this.data.reduce((s, i) => s + i.qty, 0);
+                if(totalEl) totalEl.innerText = "₹" + total;
+            }
+        };
+
+        // NEW ROBUST FILTER SYSTEM
+        const filterSystem = {
+            state: {
+                search: "",
+                categories: [],
+                maxPrice: 6500,
+                minRating: 0,
+                sort: "default"
+            },
+            
+            init() {
+                // Attach Event Listeners
+                document.getElementById('navbarSearch').addEventListener('input', (e) => {
+                    this.state.search = e.target.value;
+                    this.applyFilters();
+                });
+
+                document.querySelectorAll('.filter-cat').forEach(cb => {
+                    cb.addEventListener('change', () => {
+                        this.state.categories = Array.from(document.querySelectorAll('.filter-cat:checked')).map(el => el.value);
+                        this.applyFilters();
+                    });
+                });
+
+                const priceRange = document.getElementById('priceRange');
+                const priceDisplay = document.getElementById('priceDisplay');
+                priceRange.addEventListener('input', (e) => {
+                    this.state.maxPrice = parseInt(e.target.value);
+                    priceDisplay.innerText = '₹' + this.state.maxPrice;
+                    this.applyFilters();
+                });
+
+                document.querySelectorAll('input[name="ratingFilter"]').forEach(radio => {
+                    radio.addEventListener('change', (e) => {
+                        this.state.minRating = parseInt(e.target.value);
+                        this.applyFilters();
+                    });
+                });
+
+                document.getElementById('sortSelect').addEventListener('change', (e) => {
+                    this.state.sort = e.target.value;
+                    this.applyFilters();
+                });
+
+                // Check URL params for incoming category selections
+                const urlParams = new URLSearchParams(window.location.search);
+                const selectedCat = urlParams.get('cat');
+                if(selectedCat && selectedCat !== 'All') {
+                    const checkbox = document.querySelector(`.filter-cat[value="${selectedCat}"]`);
+                    if(checkbox) {
+                        checkbox.checked = true;
+                        this.state.categories.push(selectedCat);
+                    }
+                }
+
+                this.applyFilters();
+            },
+
+            clearAll() {
+                // Reset State
+                this.state = { search: "", categories: [], maxPrice: 6500, minRating: 0, sort: "default" };
+                
+                // Reset UI
+                document.getElementById('navbarSearch').value = "";
+                document.querySelectorAll('.filter-cat').forEach(cb => cb.checked = false);
+                document.getElementById('priceRange').value = 6500;
+                document.getElementById('priceDisplay').innerText = '₹6500';
+                document.querySelector('input[name="ratingFilter"][value="0"]').checked = true;
+                document.getElementById('sortSelect').value = "default";
+                
+                this.applyFilters();
+            },
+
+            applyFilters() {
+                let filtered = products.filter(p => {
+                    // Search Match
+                    let matchSearch = true;
+                    if (this.state.search) {
+                        const term = this.state.search.toLowerCase();
+                        matchSearch = p.name.toLowerCase().includes(term) || p.category.toLowerCase().includes(term);
+                    }
+
+                    // Category Match
+                    let matchCat = true;
+                    if (this.state.categories.length > 0) {
+                        matchCat = this.state.categories.includes(p.category);
+                    }
+
+                    // Price Match
+                    let matchPrice = p.price <= this.state.maxPrice;
+
+                    // Rating Match
+                    let matchRating = p.rating >= this.state.minRating;
+
+                    return matchSearch && matchCat && matchPrice && matchRating;
+                });
+
+                // Sorting Logic
+                if (this.state.sort === "price-asc") {
+                    filtered.sort((a, b) => a.price - b.price);
+                } else if (this.state.sort === "price-desc") {
+                    filtered.sort((a, b) => b.price - a.price);
+                } else if (this.state.sort === "rating") {
+                    filtered.sort((a, b) => b.rating - a.rating);
+                }
+
+                this.render(filtered);
+            },
+
+            render(list) {
+                const grid = document.getElementById("productGrid");
+                const count = document.getElementById("resultCount");
+                count.innerText = list.length;
+                grid.innerHTML = "";
+
+                if (list.length === 0) {
+                    grid.innerHTML = `
+                        <div class="no-results">
+                            <i class="fa-solid fa-box-open"></i>
+                            <h3 style="color: white; font-size: 18px; margin-bottom: 10px;">No Products Found</h3>
+                            <p style="color: var(--text-muted); font-size: 13px;">Try adjusting your filters or searching for something else.</p>
+                            <button class="btn btn-outline" style="margin-top: 20px;" onclick="filterSystem.clearAll()">Clear All Filters</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.forEach(p => {
+                    let badgeHtml = p.tag ? `<div class="p-badge">${p.tag}</div>` : '';
+                    grid.innerHTML += `
+                    <div class="product-card">
+                        <div class="p-image">
+                            ${badgeHtml}
+                            <img src="${p.img}" alt="${p.name}" loading="lazy">
+                        </div>
+                        <div class="p-info">
+                            <h3>${p.name}</h3>
+                            <div class="p-rating">${"★".repeat(p.rating)}<span style="color: #444;">${"★".repeat(5 - p.rating)}</span></div>
+                            <div class="p-price">₹${p.price}</div>
+                            <div class="p-actions">
+                                <button class="btn btn-outline" onclick="cartCore.add(${p.id})">Add to Cart</button>
+                                <button class="btn" onclick="cartCore.add(${p.id}); cartCore.toggle();">Buy Now</button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+            }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            cartCore.render();
+            filterSystem.init();
+        });
+    </script>
+</body>
+</html>
